@@ -1,57 +1,26 @@
 package Parsers::TargetParser::ISTEX::istexapi;
 use base qw(Parsers::TargetParser);
 use URI;
-use JSON;
-use Encode;
 
 sub getURL {
-	my ($this,$ctx_obj,$CGIquery) = @_;
-	my $doi = $ctx_obj->get('rft.doi') || '';
-	my $istex_url = "https://api.istex.fr/document/";
-	my $uri = $istex_url;
+	my($this, $ctx_obj) = @_;
+	my $svc = $this -> {svc};
 
-	if ($doi) {
-		$q = "doi%3A%22$doi%22";
-		$uri .= "?q=$q&output=doi,fulltext";
-		my $ua = LWP::UserAgent->new;
-		my $timeout = 5;
-		$ua->timeout($timeout) if $timeout;
-		my $response = $ua->get($uri);
+	my $doi  = $ctx_obj->get('rft.doi') || '';
+	my $host = $svc->parse_param('url') || '';
+	my $sid = $svc->parse_param('sid') || '';
 
-		# print $response->status_line;
-		# print $response->decoded_content;
+	my $uri;
+	my %query = ();
 
-		if ($response->is_success) {
-			
-# 			print "success";
-			eval {
-						my $content = Encode::decode("utf8", $response->content);
-						my $json = from_json( $content );
-						my $r;
-						my @results = ref $json->{hits} eq "ARRAY"
-						            ? @{ $json->{hits}}
-						: ($json->{hits});						
-						for my $result (@results) {
-						    my $istex_id = $result->{'id'};
-						    my $fulltext_node = $result->{'fulltext'};
-						    my @fulltexts =
-						      ref $fulltext_node eq "ARRAY"
-						      ? @$fulltext_node
-						      : ($fulltext_node);
-						    for my $fulltext (@fulltexts) {
-						            if( $fulltext->{extension} eq "pdf") {
-							           $ft_url = $fulltext->{uri} ;
-						            }
-						    }
-						  last;
-						}
-                	};
-
-                	if($@){
-                		print "JSON parser crashed!";
-	                }
-		}
+	if ($host && $doi) {
+		$query{'rft_id'} = "info:doi/$doi";
+		$query{'rfr_id'} = "info/sid:$sid";
 	}
-	return $ft_url ;
+
+	$uri = URI->new($host);
+	$uri->query_form(%query);
+
+	return $uri;
 }
 1;
