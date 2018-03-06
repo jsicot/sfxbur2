@@ -15,7 +15,7 @@ sub getURL {
 
 	if ($host && $doi) {
 		$query{'rft_id'} = "info:doi/$doi";
-		$query{'rfr_id'} = "info/sid:$sid";
+		$query{'sid'} = $sid;
 	}
 
 	$uri = URI->new($host);
