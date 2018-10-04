@@ -46,7 +46,7 @@ sub getCAIRNURL
 		if ($this->is_doi_allowed('CAIRN::CAIRN2',$doi)) {
 			$uri = URI->new("$host/OpenUrl/sap.php?doi=$doi");
 		} elsif (length($publication_year) && length($volume) && length($issue) && length($page)) {
-           		 $uri = URI->new("$host/	OpenUrl/sap.php?issn=$issn&date=$publication_year&volume=$volume&issue=$issue&spage=$page");
+           		 $uri = URI->new("$host/OpenUrl/sap.php?issn=$issn&date=$publication_year&volume=$volume&issue=$issue&spage=$page");
 		}
 	}
 	elsif(length($isbn)){
